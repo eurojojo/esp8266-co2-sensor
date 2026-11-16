@@ -92,3 +92,9 @@ esptool --port COM6 --baud 115200 write-flash 0x0 espeasy-full-4MB-2026-11-16.bi
 ```
 
 (De back-up zelf staat niet in deze repo: hij bevat wifi-gegevens.)
+
+## Licentie
+
+De ESPHome-configuratie en deze README vallen onder de [MIT-licentie](LICENSE). Dat geldt
+niet voor het oorspronkelijke ontwerp, de behuizing en de bouwhandleiding van Stefan van der
+Eijk; daarvoor gelden de voorwaarden op de pagina's waarnaar hierboven verwezen wordt.
