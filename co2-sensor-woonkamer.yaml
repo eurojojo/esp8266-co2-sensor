@@ -131,13 +131,14 @@ font:
     size: 12
 
 # Zelfde beeld als onder ESP Easy: elke 5 s om de beurt temperatuur,
-# luchtvochtigheid en CO2, groot in beeld, scherm 180 graden gedraaid.
+# luchtvochtigheid en CO2, groot in beeld. (ESP Easy stond op "Rotated"; in
+# ESPHome is dat rotation: 0 bij deze inbouw, 180 stond op zijn kop.)
 display:
   - platform: ssd1306_i2c
     id: oled
     model: "SH1106 128x64"
     address: 0x3C
-    rotation: 180
+    rotation: 0
     update_interval: 1s
     pages:
       - id: pagina_temp

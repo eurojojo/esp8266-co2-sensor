@@ -42,7 +42,8 @@ liggen bij de makers hierboven.
 | 0,96" OLED 128×64 (SH1106-controller, I2C 0x3C) | 3V3, GND; zelfde I2C-bus |
 
 Let op: veel van deze goedkope 0,96"-schermpjes hebben een SH1106-controller en geen
-SSD1306, ook als de winkel SSD1306 zegt. Dit exemplaar is SH1106 en staat 180° gedraaid.
+SSD1306, ook als de winkel SSD1306 zegt. Dit exemplaar is SH1106. In ESP Easy stond het scherm op "Rotated"; in ESPHome is dat bij
+deze inbouw `rotation: 0` (met 180 staat het beeld op zijn kop).
 
 ## ESPHome
 
