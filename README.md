@@ -17,7 +17,8 @@ gemaakt voor het buurtinitiatief **Duurzaam Meerhoven** (Eindhoven), rond 2019:
 - De behuizing en het ontwerp: [CO2, temperature & humidity sensor door stefan_van_der_eijk
   op Thingiverse (thing 3465447)](https://www.thingiverse.com/thing:3465447). De STL-bestanden
   staan daar en zijn bewust niet in deze repo gekopieerd.
-- De bouwhandleiding (een Google Doc van Stefan) stond op
+- De bouwhandleiding van Stefan: [Google Doc](https://docs.google.com/document/d/1xasCGfBETd0N2bq7BI-maAkGFvk7YDnRBfVL16skOQY/).
+  Die stond ook op
   `onsplatform.tv/duurzaammeerhoven/zelf-een-co2-meter-bouwen`; een archiefkopie:
   [web.archive.org](https://web.archive.org/web/20201101002426/https://www.onsplatform.tv/duurzaammeerhoven/zelf-een-co2-meter-bouwen).
 - Het hoofdstuk over ThingSpeak in die handleiding is ondertekend door "Lars"; dat is
