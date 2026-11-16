@@ -29,6 +29,12 @@ gemaakt voor het buurtinitiatief **Duurzaam Meerhoven** (Eindhoven), rond 2019:
   (plugins MH-Z19, BME280 en OLED). De handleiding verwees voor ESPHome naar de
   [ESPHome-workshop van Galagaking](https://galagaking.org/2019/11/05/esphome-workshop).
 
+Achtergrond bij de ESP Easy-versie: het artikel "IoT-projecten realiseren met ESPEasy" van
+Andrijan Möcker en Noud van Kruysbergen in c't 3/2021, p. 126-129
+([softlink](https://www.ct.nl/softlink/2103126)). Het gaat niet over deze CO2-meter, maar
+beschrijft de ESP Easy-installatie en de MQTT-controller "Home Assistant (openHAB) MQTT"
+waarmee de meter eerst aan Home Assistant hing.
+
 Voor zover bekend is er geen eerdere Git-repo waarop het ontwerp is gebaseerd. Deze repo
 bevat alleen de eigen ESPHome-omzetting; de rechten op de handleiding, foto's en de behuizing
 liggen bij de makers hierboven.
