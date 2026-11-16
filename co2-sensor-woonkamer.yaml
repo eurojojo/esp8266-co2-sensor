@@ -1,0 +1,166 @@
+# CO2-sensor in de woonkamer: NodeMCU v1.0 (ESP8266EX, CP2102, 4 MB) met
+# MH-Z19B (CO2), BME280 (temperatuur, luchtvochtigheid, luchtdruk) en een
+# 1,3"/0,96" OLED met SH1106-controller. Gebouwd naar de handleiding van
+# Stefan van der Eijk (Duurzaam Meerhoven); draaide tot 16-11-2026 op ESP Easy
+# met MQTT via Mosquitto op de Pi. MAC 9c:9c:1f:47:9b:a4.
+# Geheimen (wifi, API-sleutel, OTA-wachtwoord) staan in esphome/secrets.yaml, niet in git.
+#
+# Bedrading:
+#   MH-Z19B pin 3 GND (zwart) -> GND
+#           pin 4 Vin (rood)  -> VIN (5 V)
+#           pin 5 RX  (blauw) -> D1 / GPIO5  (TX van de ESP)
+#           pin 6 TX  (groen) -> D2 / GPIO4  (RX van de ESP)
+#   BME280 en OLED samen op I2C: VIN -> 3V3, GND -> GND,
+#           SDA (groen) -> D6 / GPIO12, SCL (geel) -> D7 / GPIO13
+#   BME280 op adres 0x76, OLED op 0x3C.
+#
+# Terug naar ESP Easy: zie README.md (volledige flash-back-up van 16-11-2026).
+
+esphome:
+  name: co2-sensor-woonkamer
+  friendly_name: CO2-sensor woonkamer
+
+esp8266:
+  board: nodemcuv2
+
+logger:
+
+api:
+  encryption:
+    key: !secret co2_sensor_woonkamer_api_key
+
+ota:
+  - platform: esphome
+    password: !secret co2_sensor_woonkamer_ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: co2-sensor-woonkamer
+
+captive_portal:
+
+# Software-UART op GPIO4/5, dus de hardware-UART (USB-log) blijft vrij.
+uart:
+  rx_pin: GPIO4
+  tx_pin: GPIO5
+  baud_rate: 9600
+
+i2c:
+  sda: GPIO12
+  scl: GPIO13
+  frequency: 400kHz
+
+sensor:
+  - platform: mhz19
+    id: mhz19_sensor
+    co2:
+      id: co2
+      name: CO2
+      state_class: measurement
+    temperature:
+      id: co2_temp
+      name: Temperatuur MH-Z19 (intern)
+      entity_category: diagnostic
+      disabled_by_default: true
+    automatic_baseline_calibration: true
+    update_interval: 60s
+
+  - platform: bme280_i2c
+    address: 0x76
+    temperature:
+      id: temperatuur
+      name: Temperatuur
+      state_class: measurement
+      accuracy_decimals: 1
+    humidity:
+      id: luchtvochtigheid
+      name: Luchtvochtigheid
+      state_class: measurement
+      accuracy_decimals: 0
+    pressure:
+      id: luchtdruk
+      name: Luchtdruk
+      state_class: measurement
+      accuracy_decimals: 1
+    update_interval: 60s
+
+  - platform: wifi_signal
+    name: Wifi-signaal
+    update_interval: 60s
+    entity_category: diagnostic
+
+  - platform: uptime
+    name: Uptime
+    entity_category: diagnostic
+
+binary_sensor:
+  - platform: status
+    name: Status
+
+button:
+  - platform: restart
+    name: Herstarten
+    entity_category: config
+  # Alleen indrukken na minstens 20 minuten in buitenlucht (ca. 400 ppm).
+  - platform: template
+    name: Kalibreer CO2 op 400 ppm
+    entity_category: config
+    on_press:
+      - mhz19.calibrate_zero: mhz19_sensor
+
+switch:
+  - platform: template
+    name: CO2 automatische basiskalibratie
+    entity_category: config
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    turn_on_action:
+      - mhz19.abc_enable: mhz19_sensor
+    turn_off_action:
+      - mhz19.abc_disable: mhz19_sensor
+
+font:
+  - file: "gfonts://Roboto@700"
+    id: groot
+    size: 32
+    glyphs: "0123456789.,- "
+  - file: "gfonts://Roboto"
+    id: klein
+    size: 12
+
+# Zelfde beeld als onder ESP Easy: elke 5 s om de beurt temperatuur,
+# luchtvochtigheid en CO2, groot in beeld, scherm 180 graden gedraaid.
+display:
+  - platform: ssd1306_i2c
+    id: oled
+    model: "SH1106 128x64"
+    address: 0x3C
+    rotation: 180
+    update_interval: 1s
+    pages:
+      - id: pagina_temp
+        lambda: |-
+          it.print(64, 0, id(klein), TextAlign::TOP_CENTER, "Temperatuur");
+          if (!isnan(id(temperatuur).state))
+            it.printf(64, 36, id(groot), TextAlign::CENTER, "%.1f", id(temperatuur).state);
+          it.print(64, 63, id(klein), TextAlign::BOTTOM_CENTER, "°C");
+      - id: pagina_vocht
+        lambda: |-
+          it.print(64, 0, id(klein), TextAlign::TOP_CENTER, "Luchtvochtigheid");
+          if (!isnan(id(luchtvochtigheid).state))
+            it.printf(64, 36, id(groot), TextAlign::CENTER, "%.0f", id(luchtvochtigheid).state);
+          it.print(64, 63, id(klein), TextAlign::BOTTOM_CENTER, "%");
+      - id: pagina_co2
+        lambda: |-
+          it.print(64, 0, id(klein), TextAlign::TOP_CENTER, "CO2");
+          if (!isnan(id(co2).state))
+            it.printf(64, 36, id(groot), TextAlign::CENTER, "%.0f", id(co2).state);
+          it.print(64, 63, id(klein), TextAlign::BOTTOM_CENTER, "ppm");
+
+interval:
+  - interval: 5s
+    then:
+      - display.page.show_next: oled
+      - component.update: oled

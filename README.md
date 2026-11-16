@@ -12,7 +12,7 @@ now running ESPHome with native Home Assistant integration.*
 ## Herkomst en credits
 
 Deze meter is gebouwd naar het ontwerp en de bouwhandleiding van **Stefan van der Eijk**,
-gemaakt voor de buurtinitiatief **Duurzaam Meerhoven** (Eindhoven), rond 2019:
+gemaakt voor het buurtinitiatief **Duurzaam Meerhoven** (Eindhoven), rond 2019:
 
 - De behuizing en het ontwerp: [CO2, temperature & humidity sensor door stefan_van_der_eijk
   op Thingiverse (thing 3465447)](https://www.thingiverse.com/thing:3465447). De STL-bestanden
@@ -46,6 +46,12 @@ SSD1306, ook als de winkel SSD1306 zegt. Dit exemplaar is SH1106 en staat 180° 
 
 ## ESPHome
 
+Entiteiten in Home Assistant (apparaat "CO2-sensor woonkamer"): CO2, Temperatuur,
+Luchtvochtigheid, Luchtdruk, Status, Wifi-signaal, Uptime, de knoppen "Herstarten" en
+"Kalibreer CO2 op 400 ppm", de schakelaar "CO2 automatische basiskalibratie" en
+"Temperatuur MH-Z19 (intern)" (standaard uitgeschakeld). Het scherm toont elke 5 seconden om
+de beurt temperatuur, luchtvochtigheid en CO2.
+
 - `co2-sensor-woonkamer.yaml`: de configuratie.
 - `secrets.example.yaml`: kopieer naar `secrets.yaml` en vul wifi, API-sleutel en
   OTA-wachtwoord in. `secrets.yaml` staat in `.gitignore`.
@@ -56,6 +62,14 @@ Eerste keer flashen via USB:
 esphome run co2-sensor-woonkamer.yaml --device COM6
 ```
 
+Lukt dat niet (bij dit bordje gaf de CP2102 op 460800 baud leesfouten), flash dan het
+gecompileerde bestand op 115200 baud:
+
+```
+esphome compile co2-sensor-woonkamer.yaml
+esptool --port COM6 --baud 115200 write-flash --erase-all 0x0 .esphome/build/co2-sensor-woonkamer/.pioenvs/co2-sensor-woonkamer/firmware.bin
+```
+
 Daarna kan het draadloos (OTA). Home Assistant vindt het apparaat vanzelf via de
 ESPHome-integratie.
 
@@ -64,7 +78,9 @@ ESPHome-integratie.
 De MH-Z19B gebruikt automatische basiskalibratie (ABC): hij neemt aan dat hij minstens één keer
 per 24 uur buitenlucht (ongeveer 420 ppm) ziet. Staat hij in een ruimte die nooit goed
 gelucht wordt, zet ABC dan uit en kalibreer handmatig: zet de sensor 20 minuten buiten of
-bij een open raam en druk in Home Assistant op de knop "Kalibreer op 400 ppm".
+bij een open raam en druk in Home Assistant op de knop "Kalibreer CO2 op 400 ppm".
+ABC staat standaard aan en is in Home Assistant uit te zetten met de schakelaar
+"CO2 automatische basiskalibratie".
 
 ## Terug naar ESP Easy
 
@@ -72,7 +88,7 @@ Een volledige 4 MB-flashback-up van de oude ESP Easy-installatie (mega-20250430)
 teruggezet met:
 
 ```
-esptool --port COM6 write_flash 0 espeasy-full-4MB.bin
+esptool --port COM6 --baud 115200 write-flash 0x0 espeasy-full-4MB-2026-11-16.bin
 ```
 
 (De back-up zelf staat niet in deze repo: hij bevat wifi-gegevens.)
